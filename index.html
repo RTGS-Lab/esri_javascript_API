@@ -5,8 +5,6 @@ Navigate to Content > Add Item > An Application.
 Choose Application and fill in the details.
 Note the Client ID and Client Secret generated for your app.
 -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,7 +39,7 @@ Note the Client ID and Client Secret generated for your app.
       // Setup OAuthInfo with your registered app's client ID
       const info = new OAuthInfo({
         appId: "hgmPNjL7xIF4XaJC", // Replace with your app's Client ID
-        popup: true // false if redirect to ArcGIS login page instead of showing a popup
+        popup: true // Use popup for authentication
       });
 
       // Register OAuthInfo with the IdentityManager
@@ -54,8 +52,14 @@ Note the Client ID and Client Secret generated for your app.
           initializeMap();
         })
         .catch(function() {
-          // User is not signed in, show the sign-in page
-          IdentityManager.getCredential(info.portalUrl + "/sharing");
+          // User is not signed in, show the sign-in popup
+          IdentityManager.getCredential(info.portalUrl + "/sharing")
+            .then(() => {
+              initializeMap();
+            })
+            .catch((err) => {
+              console.error("Sign-in failed: ", err);
+            });
         });
 
       function initializeMap() {
@@ -85,6 +89,7 @@ Note the Client ID and Client Secret generated for your app.
 </head>
 
 <body>
+  <!-- The div below is where the map will be rendered -->
   <div id="viewDiv"></div>
 </body>
 
