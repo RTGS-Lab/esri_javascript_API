@@ -29,12 +29,13 @@ Note the Client ID and Client Secret generated for your app.
 
   <script>
     require([
+      "esri/portal/Portal",
       "esri/identity/OAuthInfo",
       "esri/identity/IdentityManager",
       "esri/WebMap",
       "esri/views/MapView",
       "esri/widgets/Editor"
-    ], function(OAuthInfo, IdentityManager, WebMap, MapView, Editor) {
+    ], function(Portal, OAuthInfo, IdentityManager, WebMap, MapView, Editor) {
 
       // Setup OAuthInfo with your registered app's client ID
       const info = new OAuthInfo({
@@ -45,10 +46,25 @@ Note the Client ID and Client Secret generated for your app.
       // Register OAuthInfo with the IdentityManager
       IdentityManager.registerOAuthInfos([info]);
 
+      function handleSignedIn() {
+
+        const portal = new Portal();
+        portal.load().then(() => {
+          const results = { name: portal.user.fullName, username: portal.user.username };
+          document.getElementById("results").innerText = JSON.stringify(results, null, 2);
+        });
+
+      }
+
+      function handleSignedOut() {
+        document.getElementById("results").innerText = 'Signed Out'
+      }
+
       // Check sign-in status
       IdentityManager.checkSignInStatus(info.portalUrl + "/sharing")
         .then(function() {
           // User is signed in
+          handleSignedIn()
           initializeMap();
         })
         .catch(function() {
